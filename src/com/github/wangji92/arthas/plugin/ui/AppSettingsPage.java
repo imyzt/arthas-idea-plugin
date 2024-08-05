@@ -266,6 +266,10 @@ public class AppSettingsPage implements Configurable {
     private JTable tunnelTable;
     private JPanel tablePanel;
     public static DefaultTableModel tableModel;
+    /**
+     * 自动打开Arthas终端
+     */
+    private JRadioButton autoOpenArthasTerminalRadioButton;
 
 
     @Nls(capitalization = Nls.Capitalization.Title)
@@ -342,6 +346,7 @@ public class AppSettingsPage implements Configurable {
                 || !mybatisMapperReloadMethodNameTextField.getText().equalsIgnoreCase(settings.mybatisMapperReloadMethodName)
                 || !mybatisMapperReloadServiceBeanNameTextField.getText().equalsIgnoreCase(settings.mybatisMapperReloadServiceBeanName)
                 || autoToUnicodeRadioButton.isSelected() != settings.autoToUnicode
+                || autoOpenArthasTerminalRadioButton.isSelected() != settings.autoOpenArthasTerminal
                 || tunnelTable.getRowCount() != (settings.tunnelServerList == null ? 0 : settings.tunnelServerList.size());
 
         if (modify) {
@@ -420,7 +425,9 @@ public class AppSettingsPage implements Configurable {
         settings.printConditionExpress = printConditionExpressRadioButton.isSelected();
         settings.arthasPackageZipDownloadUrl = arthasPackageZipDownloadUrlTextField.getText();
         settings.autoToUnicode = autoToUnicodeRadioButton.isSelected();
+        settings.autoOpenArthasTerminal = autoOpenArthasTerminalRadioButton.isSelected();
         PropertiesComponentUtils.setValue("autoToUnicode", autoToUnicodeRadioButton.isSelected() ? "y" : "n");
+        PropertiesComponentUtils.setValue("autoOpenArthasTerminal", autoOpenArthasTerminalRadioButton.isSelected() ? "y" : "n");
         // 设置到全局
         PropertiesComponentUtils.setValue("arthasPackageZipDownloadUrl", arthasPackageZipDownloadUrlTextField.getText());
         List<TunnelServerInfo> tunnelServerList = this.getTunnelServerInfoList();
@@ -629,6 +636,7 @@ public class AppSettingsPage implements Configurable {
         redefineBeforeCompileRadioButton.setSelected(settings.redefineBeforeCompile);
         printConditionExpressRadioButton.setSelected(settings.printConditionExpress);
         autoToUnicodeRadioButton.setSelected(settings.autoToUnicode);
+        autoOpenArthasTerminalRadioButton.setSelected(settings.autoOpenArthasTerminal);
         selectProjectNameTextField.setText(settings.selectProjectName);
 
         ossEndpointTextField.setText(settings.endpoint);

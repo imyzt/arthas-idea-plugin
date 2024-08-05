@@ -252,6 +252,11 @@ public class AppSettingsState implements PersistentStateComponent<AppSettingsSta
     public String lastSelectTunnelServer;
 
     /**
+     * 自动打开Arthas终端
+     */
+    public boolean autoOpenArthasTerminal = false;
+
+    /**
      * 获取工程的名称
      *
      * @return
@@ -292,6 +297,7 @@ public class AppSettingsState implements PersistentStateComponent<AppSettingsSta
         checkGlobalScriptDialogCloseWhenSelectedCommand(appSettingsState);
 
         checkGlobalAutoToUnicode(appSettingsState);
+        checkGlobalAutoOpenArthasTerminal(appSettingsState);
 
         checkGlobalTunnelServerAndSettingCurrentProjectIfEmpty(appSettingsState);
 
@@ -380,6 +386,18 @@ public class AppSettingsState implements PersistentStateComponent<AppSettingsSta
         String autoToUnicode = PropertiesComponentUtils.getValue("autoToUnicode");
         if (StringUtils.isNotBlank(autoToUnicode)) {
             appSettingsState.autoToUnicode = "y".equals(autoToUnicode);
+        }
+    }
+
+    /**
+     * 使用全局的配置  自动打开Arthas终端
+     *
+     * @param appSettingsState
+     */
+    private static void checkGlobalAutoOpenArthasTerminal(AppSettingsState appSettingsState) {
+        String autoOpenArthasTerminal = PropertiesComponentUtils.getValue("autoOpenArthasTerminal");
+        if (StringUtils.isNotBlank(autoOpenArthasTerminal)) {
+            appSettingsState.autoOpenArthasTerminal = "y".equals(autoOpenArthasTerminal);
         }
     }
 

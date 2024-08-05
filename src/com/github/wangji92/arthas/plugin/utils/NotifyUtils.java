@@ -1,5 +1,6 @@
 package com.github.wangji92.arthas.plugin.utils;
 
+import com.github.wangji92.arthas.plugin.setting.AppSettingsState;
 import com.github.wangji92.arthas.plugin.ui.ArthasTerminalOptionsDialog;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
@@ -41,6 +42,13 @@ public class NotifyUtils {
      * @param project
      */
     public static void notifyMessageOpenTerminal(Project project, String message, String command, Editor editor) {
+
+        boolean autoOpenArthasTerminal = AppSettingsState.getInstance(project).autoOpenArthasTerminal;
+        if (autoOpenArthasTerminal) {
+            new ArthasTerminalOptionsDialog(project, command, editor).open();
+            return;
+        }
+
         notifyMessage(project, StringUtils.defaultString(message, COMMAND_COPIED), NotificationType.INFORMATION, (Notification arthas) -> {
             arthas.addAction(new AnActionButton("Open Arthas Terminal") {
                 @Override
