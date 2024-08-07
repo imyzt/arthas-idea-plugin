@@ -2,6 +2,7 @@ package com.github.wangji92.arthas.plugin.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.github.wangji92.arthas.plugin.action.terminal.ClearAllAction;
+import com.github.wangji92.arthas.plugin.action.terminal.ModifyRerunAction;
 import com.github.wangji92.arthas.plugin.action.terminal.RerunAction;
 import com.github.wangji92.arthas.plugin.action.terminal.StopAction;
 import com.github.wangji92.arthas.plugin.common.pojo.AgentInfo;
@@ -186,6 +187,7 @@ public class ArthasTerminalManager implements Disposable {
 
         final DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new RerunAction(this));
+        actionGroup.add(new ModifyRerunAction(this.project, this.editor, this, this.cmd));
         actionGroup.add(new StopAction(this));
         actionGroup.addSeparator();
         actionGroup.add(new ClearAllAction(consoleView));
