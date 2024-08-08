@@ -56,21 +56,15 @@ import java.util.stream.Collectors;
 public class ArthasTerminalManager implements Disposable {
 
     private static final Key<ArthasTerminalManager> KEY = Key.create(ArthasTerminalManager.class.getName());
-
-    private final Map<Integer, ConsoleViewContentType> consoleViewContentTypes = new ConcurrentHashMap<>();
+    private static final String RESIZE_WIDTH = "{\"action\":\"resize\",\"cols\":180,\"rows\":30}";
 
     private final ConsoleViewImpl consoleView;
     private final Project project;
     private final RunContentDescriptor descriptor;
 
-    private final AtomicInteger counter;
-    private volatile String preparing;
-    private volatile String parameters;
     private volatile boolean running = false;
 
     private List<ArthasWebSocketClient> webSocketClients;
-
-    private final List<String> keywords = new ArrayList<>(0);
 
     private final List<AgentInfo> agentInfos;
 
@@ -104,7 +98,6 @@ public class ArthasTerminalManager implements Disposable {
 
         final MessageBusConnection messageBusConnection = project.getMessageBus().connect();
 
-        this.counter = new AtomicInteger();
         this.descriptor = getRunContentDescriptor(layoutUi, cmd);
 
         Disposer.register(this, consoleView);
@@ -156,15 +149,19 @@ public class ArthasTerminalManager implements Disposable {
         ArthasTerminalManager.createInstance(project, agentInfos, cmd, tunnelServerInfo, editor).run();
     }
 
-    private static ArthasWebSocketClient createSocketConnection(String cmd, String agentId, String host, TunnelServerInfo tunnelServerInfo, Editor editor) {
+    private ArthasWebSocketClient createSocketConnection(String cmd, String agentId, String host, TunnelServerInfo tunnelServerInfo, Editor editor) {
 
         String uri = TunnelServerPath.getWsUrl(agentId, host, tunnelServerInfo);
         ArthasWebSocketClient client = null;
         try {
-            client = new ArthasWebSocketClient(new URI(uri), agentId, editor);
+            client = new ArthasWebSocketClient(new URI(uri), agentId, editor, this.consoleView);
             client.connectBlocking();
             Thread.sleep(500);
+            // 将命令的结果去除 ANSI 颜色
+            cmd = cmd + " |plaintext";
             client.send(JSON.toJSONString(new WsArthasRequest(cmd + "\r")));
+            // 重置窗口宽度
+            client.send(RESIZE_WIDTH);
         } catch (Exception e) {
             NotifyUtils.notifyMessage(editor.getProject(), "连接失败" + agentId);
         }
@@ -182,16 +179,12 @@ public class ArthasTerminalManager implements Disposable {
     }
 
     private ActionGroup createActionToolbar() {
-
-        final ConsoleViewImpl consoleView = this.consoleView;
-
         final DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new RerunAction(this));
         actionGroup.add(new ModifyRerunAction(this.project, this.editor, this, this.cmd));
         actionGroup.add(new StopAction(this));
         actionGroup.addSeparator();
-        actionGroup.add(new ClearAllAction(consoleView));
-
+        actionGroup.add(new ClearAllAction(this.consoleView));
         return actionGroup;
     }
 

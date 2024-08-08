@@ -1,5 +1,6 @@
 package com.github.wangji92.arthas.plugin.utils;
 
+import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.Disposable;
@@ -28,6 +29,7 @@ public class ArthasWebSocketClient extends WebSocketClient implements Disposable
     public static final String WEBSOCKET_ERROR = "{} websocket error {}";
     public static final String LISTENING_STR = " listening...\n";
     public static final String ENTER = "\n";
+    private static final String START_WORD = "[arthas@1]$";
 
     private ConsoleView consoleView;
 
@@ -37,9 +39,6 @@ public class ArthasWebSocketClient extends WebSocketClient implements Disposable
 
     private final String agentId;
 
-
-    private final static String START_WORD = "Affect";
-
     private boolean isStartPrint;
 
     private MarkupModel markupModel;
@@ -47,12 +46,13 @@ public class ArthasWebSocketClient extends WebSocketClient implements Disposable
     private List<RangeHighlighter> highlighters;
 
 
-    public ArthasWebSocketClient(URI serverUri, String agentId, Editor editor) {
+    public ArthasWebSocketClient(URI serverUri, String agentId, Editor editor, ConsoleViewImpl consoleView) {
         super(serverUri);
         this.agentId = agentId;
         this.isStartPrint = false;
         this.markupModel = editor.getMarkupModel();
         this.highlighters = new ArrayList<>();
+        this.consoleView = consoleView;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ArthasWebSocketClient extends WebSocketClient implements Disposable
                     });
                 }
                 consoleView.print(s, ConsoleViewContentType.SYSTEM_OUTPUT);
-            } else if (s.startsWith(START_WORD)) {
+            } else if (s.contains(START_WORD)) {
                 consoleView.print(agentId + LISTENING_STR, ConsoleViewContentType.SYSTEM_OUTPUT);
                 isStartPrint = true;
             }
