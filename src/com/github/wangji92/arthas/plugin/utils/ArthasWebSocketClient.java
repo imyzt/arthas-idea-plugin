@@ -62,12 +62,13 @@ public class ArthasWebSocketClient extends WebSocketClient implements Disposable
     @Override
     public void onMessage(String s) {
         if (Objects.nonNull(s)) {
+            s = s.replaceAll(" \r", "");
             if (isStartPrint) {
                 int start = s.indexOf('#');
                 if (start != -1) {
+                    int lineNumber = Integer.parseInt(s.substring(start + 1)) - 1;
                     EventQueue.invokeLater(() -> {
                         try {
-                            int lineNumber = Integer.parseInt(s.substring(start + 1)) - 1;
                             RangeHighlighter highlighter = markupModel.addLineHighlighter(lineNumber, 10, new TextAttributes());
                             highlighters.add(highlighter);
                         } catch (Exception e) {
